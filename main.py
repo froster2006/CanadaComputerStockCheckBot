@@ -43,7 +43,15 @@ def checkGpuStock(gpuInfo):
 
     # Check online stock
     online_status_element = soup.select_one("#onlineinfo > div > div > p.mt-1.text-dark.f-16.fm-xs-SF-Pro-Display-Medium")
-    online_status = "In stock" if (not online_status_element or "Sold out online" not in online_status_element.get_text(strip=True)) else "Sold out"
+    try:
+        online_status = (
+            "In Stock"
+            if online_status_element 
+            and "Sold out online" not in online_status_element.get_text(strip=True)
+            else "Sold out"
+        )
+    except AttributeError:  # If online_status_element is None or has no get_text()
+        online_status = "Sold out"
     
     bg_numbers = []
     store_status = {}
@@ -70,7 +78,7 @@ def checkGpuStock(gpuInfo):
         print(f"{location}: {store_status.get(location, '0')}")
 
     # Check if we should send notification
-    if online_status == "In stock" or any(int(num) > 0 for num in bg_numbers if num.isdigit()):
+    if online_status == "In Stock" or any(int(num) > 0 for num in bg_numbers if num.isdigit()):
         send_discord_notification(name, online_status, store_status)
 
 def main():
@@ -83,7 +91,7 @@ def main():
             checkGpuStock(gpu)
         
         # Wait 1 minute before next check
-        time.sleep(60)
+        time.sleep(600)
 
 if __name__ == "__main__":
     main()
