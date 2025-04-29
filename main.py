@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from gpuinfo import gpu_Info
-import time
+import time, random
 from datetime import datetime
 
 # Discord webhook configuration
@@ -38,7 +38,13 @@ def send_discord_notification(gpu_name, online_status, store_status):
 def checkGpuStock(gpuInfo):
     url = gpuInfo.url
     name = gpuInfo.name
-    response = requests.get(url)
+    custom_headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Connection': 'keep-alive',
+    }
+    response = requests.get(url,headers=custom_headers, timeout=10)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Check online stock
@@ -89,9 +95,10 @@ def main():
         print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
         for gpu in gpus:
             checkGpuStock(gpu)
+            time.sleep(random.randint(3,5))
         
         # Wait 1 minute before next check
-        time.sleep(600)
+        time.sleep(random.randint(800, 900))
 
 if __name__ == "__main__":
     main()
