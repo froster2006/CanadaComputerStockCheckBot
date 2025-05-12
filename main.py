@@ -13,27 +13,27 @@ with open("locations.json", "r") as config_file:
 
 def send_discord_notification(gpu_name, online_status, store_status):
     """Send a notification to Discord webhook when GPU is in stock"""
-    message = f"🚨 **GPU IN STOCK ALERT** 🚨\n\n"
-    message += f"**{gpu_name}**\n"
-    message += f"**Online:** {online_status}\n"
+    # message = f"🚨 **GPU IN STOCK ALERT** 🚨\n\n"
+    # message += f"**{gpu_name}**\n"
+    # message += f"**Online:** {online_status}\n"
     
-    if store_status:
-        message += "**Store Availability:**\n"
-        for location, stock in store_status.items():
-            message += f"{location}: {stock}\n"
+    # if store_status:
+    #     message += "**Store Availability:**\n"
+    #     for location, stock in store_status.items():
+    #         message += f"{location}: {stock}\n"
     
-    message += f"\n🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    # message += f"\n🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     
-    payload = {
-        "content": message,
-        "username": "GPU Stock Bot"
-    }
+    # payload = {
+    #     "content": message,
+    #     "username": "GPU Stock Bot"
+    # }
     
-    try:
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to send Discord notification: {e}")
+    # try:
+    #     response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+    #     response.raise_for_status()
+    # except requests.exceptions.RequestException as e:
+    #     print(f"Failed to send Discord notification: {e}")
 
 def checkGpuStock(gpuInfo):
     url = gpuInfo.url
