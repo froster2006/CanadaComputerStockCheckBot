@@ -139,28 +139,31 @@ def checkRFD():
     dealList = []
     for listing_soup in listings_soup:
         deal = {}
-        thread_title = listing_soup.find('h3', class_='thread_title')
-        a_tag = thread_title.find('a',class_='thread_title_link')
-        title_str = a_tag.string.strip('\n\r')
-        inner_header = listing_soup.find('div', class_='thread_inner_header')
-        thread_dealer = inner_header.find('a', class_=['pill','thread_dealer'])
-        source_str=thread_dealer.text.strip('\n\r')
-        targetDeal = False
-        for s in RFD_Sources:
-            if s in source_str:
-                targetDeal = True
-                break
-        if targetDeal == True:
-            deal['deal_title'] = title_str
-            deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
-            deal['deal_source'] = source_str
-            dealID = get_RFD_DealID(deal['deal_link'])
-            if dealID in pushed_deal:
-                continue
-            else:
-                print('[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID)
-                pushed_deal.add(dealID)
-                dealList.append(deal)
+        try:
+            thread_title = listing_soup.find('h3', class_='thread_title')
+            a_tag = thread_title.find('a',class_='thread_title_link')
+            title_str = a_tag.string.strip('\n\r')
+            inner_header = listing_soup.find('div', class_='thread_inner_header')
+            thread_dealer = inner_header.find('a', class_=['pill','thread_dealer'])
+            source_str=thread_dealer.text.strip('\n\r')
+            targetDeal = False
+            for s in RFD_Sources:
+                if s in source_str:
+                    targetDeal = True
+                    break
+            if targetDeal == True:
+                deal['deal_title'] = title_str
+                deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
+                deal['deal_source'] = source_str
+                dealID = get_RFD_DealID(deal['deal_link'])
+                if dealID in pushed_deal:
+                    continue
+                else:
+                    print('[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID)
+                    pushed_deal.add(dealID)
+                    dealList.append(deal)
+        except Exception:
+            pass
     
     if len(dealList)>0:
         send_discord_notification_rfd(dealList)
