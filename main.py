@@ -9,7 +9,7 @@ import re
 
 BASE_URL = "https://forums.redflagdeals.com/"
 HOT_DEALS_URL = f"{BASE_URL}hot-deals-f9/"
-pushed_deal = set
+pushed_deal = set()
 # Discord webhook configuration
 DISCORD_WEBHOOK_URL = "https://hkdk.events/h75pnr63p0erjf"
 with open("locations.json", "r") as config_file:
@@ -149,10 +149,10 @@ def checkRFD():
             deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
             deal['deal_source'] = source_str
             dealID = get_RFD_DealID(deal['deal_link'])
-            #print(deal['deal_link'] + '\n' +dealID)
             if dealID in pushed_deal:
                 continue
             else:
+                #print(deal['deal_link'] + '\n' +dealID)
                 pushed_deal.add(dealID)
                 dealList.append(deal)
     
@@ -168,7 +168,8 @@ def main():
         # for gpu in gpus:
         #     checkGpuStock(gpu)
         checkRFD()
-        time.sleep(random.randint(300, 600))
+        #time.sleep(random.randint(300, 600))
+        time.sleep(100)
 
 if __name__ == "__main__":
     main()
