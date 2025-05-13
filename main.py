@@ -5,10 +5,11 @@ from gpuinfo import gpu_Info
 import time, random
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
+import re
 
 BASE_URL = "https://forums.redflagdeals.com/"
 HOT_DEALS_URL = f"{BASE_URL}hot-deals-f9/"
-
+pushed_deal = {'foo', 'bar', 'baz'}
 # Discord webhook configuration
 DISCORD_WEBHOOK_URL = "https://hkdk.events/h75pnr63p0erjf"
 with open("locations.json", "r") as config_file:
@@ -50,6 +51,10 @@ def send_discord_notification_rfd(dealList):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Failed to send Discord notification: {e}")
+
+def get_RFD_DealID(link):
+    matches = re.findall(r'-(\d+)/', link)
+    return matches[-1] if matches else None
 
 def send_discord_notification(gpu_name, online_status, store_status):
     """Send a notification to Discord webhook when GPU is in stock"""
@@ -143,7 +148,13 @@ def checkRFD():
             deal['deal_title'] = title_str
             deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
             deal['deal_source'] = source_str
-            dealList.append(deal)
+            dealID = get_RFD_DealID(deal['deal_link'])
+            #print(deal['deal_link'] + '\n' +dealID)
+            if dealID in pushed_deal:
+                continue
+            else:
+                pushed_deal.add(dealID)
+                dealList.append(deal)
     
     if len(dealList)>0:
         send_discord_notification_rfd(dealList)
