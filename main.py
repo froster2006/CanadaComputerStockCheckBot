@@ -7,15 +7,16 @@ from datetime import datetime
 from requests.auth import HTTPBasicAuth
 import re
 
-BASE_URL = "https://forums.redflagdeals.com/"
-HOT_DEALS_URL = f"{BASE_URL}hot-deals-f9/"
-pushed_deal = set()
-# Discord webhook configuration
-DISCORD_WEBHOOK_URL = "https://hkdk.events/h75pnr63p0erjf"
-with open("locations.json", "r") as config_file:
+
+with open("conf/config.json", "r") as config_file:
     config = json.load(config_file)
     TARGET_LOCATIONS = config["target_locations"]
     RFD_Sources = config["RFD_sources"]
+    HOT_DEALS_URL = config["RFD_HOT_DEAL_URL"]
+    RFD_DEAL_LINK_PREFIX = config["RFD_DEAL_LINK_PREFIX"]
+    DISCORD_WEBHOOK_URL = config["DISCORD_WEBHOOK_URL"]
+
+pushed_deal = set()
 
 custom_headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -35,22 +36,29 @@ def fetch_url(url):
         print(f"An error occurred: {err}")
 
 def send_discord_notification_rfd(dealList):
-    message = f"🚨 **RFD alart** 🚨\n\n"
+    messages = list()
+    message = f"🚨 **RFD alart** 🚨\n"
     for deal in dealList:
         deal_str = '[' + deal['deal_source']+ '] '+ deal['deal_title']+'\n' + deal['deal_link']+'\n'
         if len(message) + len(deal_str) < 1980:
             message += deal_str
+        else:
+            messages.append(message)
+            message = deal_str
+
+    messages.append(message)
+    for msg in messages:
+        payload = {
+            "content": msg,
+            "username": "RFD Bot"
+        }
         
-    payload = {
-        "content": message,
-        "username": "RFD Bot"
-    }
-    
-    try:
-        response = requests.post(DISCORD_WEBHOOK_URL,  json=payload)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to send Discord notification: {e}")
+        try:
+            response = requests.post(DISCORD_WEBHOOK_URL,  json=payload)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to send Discord notification: {e}")
+        time.sleep(5)
 
 def get_RFD_DealID(link):
     matches = re.findall(r'-(\d+)/', link)
@@ -152,7 +160,7 @@ def checkRFD():
                     break
             if targetDeal == True:
                 deal['deal_title'] = title_str
-                deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
+                deal['deal_link'] = RFD_DEAL_LINK_PREFIX + a_tag['href']
                 deal['deal_source'] = source_str
                 dealID = get_RFD_DealID(deal['deal_link'])
                 if dealID in pushed_deal:
@@ -166,7 +174,6 @@ def checkRFD():
     if len(dealList) > 0:
         send_discord_notification_rfd(dealList)
     
-
 def main():
     # with open("gpus.json", "r") as file:
     #     gpus = [gpu_Info.from_dict(gpu_data) for gpu_data in json.load(file)]   

@@ -1,0 +1,7 @@
+{
+    "target_locations": ["Waterloo", "Cambridge", "Burlington","Hamilton","Oakville","Brampton","Mississagua","Richmond Hill"],
+    "RFD_sources": ["Amazon",  "Costco","Home Depot", "Canadian Tire", "Rona", "IKEA", "Under Armour", "Walmart", "Gamestop", "AliExpress","Canada Computers","Staples","Best","Superstore"],
+    "RFD_HOT_DEAL_URL": "https://forums.redflagdeals.com/hot-deals-f9/",
+    "RFD_DEAL_LINK_PREFIX": "https://forums.redflagdeals.com",
+    "DISCORD_WEBHOOK_URL": "https://hkdk.events/h75pnr63p0erjf"
+}
