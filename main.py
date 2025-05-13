@@ -36,7 +36,8 @@ def send_discord_notification_rfd(dealList):
     """Send a notification to Discord webhook when GPU is in stock"""
     message = f"🚨 **RFD alart** 🚨\n\n"
     for deal in dealList:
-        message +=deal['deal_link']+'\n'
+        message += '[' + deal['deal_source']+ ']'+ deal['deal_title']+'\n'
+        message += deal['deal_link']+'\n'
     message += f"\n🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     
     payload = {
