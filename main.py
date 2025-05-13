@@ -35,13 +35,12 @@ def fetch_url(url):
         print(f"An error occurred: {err}")
 
 def send_discord_notification_rfd(dealList):
-    """Send a notification to Discord webhook when GPU is in stock"""
     message = f"🚨 **RFD alart** 🚨\n\n"
     for deal in dealList:
-        message += '[' + deal['deal_source']+ ']'+ deal['deal_title']+'\n'
-        message += deal['deal_link']+'\n'
-    message += f"\n🕒 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-    
+        deal_str = '[' + deal['deal_source']+ '] '+ deal['deal_title']+'\n' + deal['deal_link']+'\n'
+        if len(message) + len(deal_str) < 1980:
+            message += deal_str
+        
     payload = {
         "content": message,
         "username": "RFD Bot"
@@ -164,9 +163,9 @@ def checkRFD():
                     dealList.append(deal)
         except Exception:
             pass
-    
-    if len(dealList)>0:
+    if len(dealList) > 0:
         send_discord_notification_rfd(dealList)
+    
 
 def main():
     # with open("gpus.json", "r") as file:
