@@ -15,6 +15,7 @@ DISCORD_WEBHOOK_URL = "https://hkdk.events/h75pnr63p0erjf"
 with open("locations.json", "r") as config_file:
     config = json.load(config_file)
     TARGET_LOCATIONS = config["target_locations"]
+    RFD_Sources = config["RFD_sources"]
 
 custom_headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -144,7 +145,12 @@ def checkRFD():
         inner_header = listing_soup.find('div', class_='thread_inner_header')
         thread_dealer = inner_header.find('a', class_=['pill','thread_dealer'])
         source_str=thread_dealer.text.strip('\n\r')
-        if('Amazon' in source_str or 'Costco' in source_str or 'Home Depot' in source_str or 'Canadian Tire' in source_str  or 'Rona' in source_str  or 'IKEA' in source_str):
+        targetDeal = False
+        for s in RFD_Sources:
+            if s in source_str:
+                targetDeal = True
+                break
+        if targetDeal == True:
             deal['deal_title'] = title_str
             deal['deal_link'] = 'https://forums.redflagdeals.com'+ a_tag['href']
             deal['deal_source'] = source_str
@@ -152,7 +158,7 @@ def checkRFD():
             if dealID in pushed_deal:
                 continue
             else:
-                print(deal['deal_title'] + '\n' +dealID)
+                print('[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID)
                 pushed_deal.add(dealID)
                 dealList.append(deal)
     
