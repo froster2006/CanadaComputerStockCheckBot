@@ -152,7 +152,7 @@ def checkRFD():
             if dealID in pushed_deal:
                 continue
             else:
-                #print(deal['deal_link'] + '\n' +dealID)
+                print(deal['deal_title'] + '\n' +dealID)
                 pushed_deal.add(dealID)
                 dealList.append(deal)
     
@@ -169,7 +169,7 @@ def main():
         #     checkGpuStock(gpu)
         checkRFD()
         #time.sleep(random.randint(300, 600))
-        time.sleep(100)
+        time.sleep(300)
 
 if __name__ == "__main__":
     main()
