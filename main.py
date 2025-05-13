@@ -9,7 +9,7 @@ import re
 
 BASE_URL = "https://forums.redflagdeals.com/"
 HOT_DEALS_URL = f"{BASE_URL}hot-deals-f9/"
-pushed_deal = {'foo', 'bar', 'baz'}
+pushed_deal = set
 # Discord webhook configuration
 DISCORD_WEBHOOK_URL = "https://hkdk.events/h75pnr63p0erjf"
 with open("locations.json", "r") as config_file:
