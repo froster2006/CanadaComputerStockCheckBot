@@ -141,6 +141,7 @@ def checkGpuStock(gpuInfo):
         send_discord_notification(name, online_status, store_status)
 
 def checkRFD():
+    global pushed_deal
     soup = fetch_url(HOT_DEALS_URL) # fetch the url
     listings_soup = soup.find_all("div", class_ ='thread_info') # find all the listings
     dealList = []
@@ -173,18 +174,34 @@ def checkRFD():
             pass
     if len(dealList) > 0:
         send_discord_notification_rfd(dealList)
-    
+
+def save_list_to_file(string_set, filename):
+    with open(filename, 'w', encoding='utf-8') as f:
+        for item in string_set:
+            f.write(item + '\n')
+
+def read_set_from_file(filename):
+    with open(filename, 'r', encoding='utf-8') as f:
+        return {line.strip() for line in f if line.strip()}
+
 def main():
     # with open("gpus.json", "r") as file:
     #     gpus = [gpu_Info.from_dict(gpu_data) for gpu_data in json.load(file)]   
-
-    while True:
-        print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
-        # for gpu in gpus:
-        #     checkGpuStock(gpu)
-        checkRFD()
-        #time.sleep(random.randint(300, 600))
-        time.sleep(300)
+    global pushed_deal
+    pushed_deal = read_set_from_file("conf/pushed_deals.txt")
+    try:
+        while True:
+            print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
+            # for gpu in gpus:
+            #     checkGpuStock(gpu)
+            checkRFD()
+            #time.sleep(random.randint(300, 600))
+            time.sleep(300)
+    except Exception:
+        pass
+    finally:
+        print(pushed_deal)
+        save_list_to_file(pushed_deal, "conf/pushed_deals.txt")
 
 if __name__ == "__main__":
     main()
