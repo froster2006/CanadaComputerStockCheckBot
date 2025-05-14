@@ -6,6 +6,17 @@ import time, random
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 import re
+import signal
+import sys
+
+def handle_sigterm(signum, frame):
+    print("Received SIGTERM, cleaning up...")
+    global pushed_deal
+    print(pushed_deal)
+    save_list_to_file(pushed_deal, "conf/pushed_deals.txt")
+    sys.exit(0)  # Exit gracefully
+
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 
 with open("conf/config.json", "r") as config_file:
@@ -164,31 +175,45 @@ def checkRFD():
                 deal['deal_link'] = RFD_DEAL_LINK_PREFIX + a_tag['href']
                 deal['deal_source'] = source_str
                 dealID = get_RFD_DealID(deal['deal_link'])
-                if dealID in pushed_deal:
+                if int(dealID) in pushed_deal:
                     continue
                 else:
                     print('[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID)
-                    pushed_deal.add(dealID)
+                    pushed_deal.add(int(dealID))
                     dealList.append(deal)
         except Exception:
             pass
     if len(dealList) > 0:
         send_discord_notification_rfd(dealList)
 
-def save_list_to_file(string_set, filename):
+def save_list_to_file(int_set, filename):
     with open(filename, 'w', encoding='utf-8') as f:
-        for item in string_set:
-            f.write(item + '\n')
+        for item in int_set:
+            f.write(str(item) + '\n')
 
-def read_set_from_file(filename):
+
+def read_int_set_from_file(filename):
+    int_set = set()
     with open(filename, 'r', encoding='utf-8') as f:
-        return {line.strip() for line in f if line.strip()}
+        for line in f:
+            line = line.strip()
+            if line:
+                try:
+                    int_set.add(int(line))
+                except ValueError:
+                    # Skip lines that can't be converted to int
+                    pass
+    return int_set
 
 def main():
     # with open("gpus.json", "r") as file:
     #     gpus = [gpu_Info.from_dict(gpu_data) for gpu_data in json.load(file)]   
     global pushed_deal
-    pushed_deal = read_set_from_file("conf/pushed_deals.txt")
+    pushed_deal = read_int_set_from_file("conf/pushed_deals.txt")
+    sorted_deal = sorted(pushed_deal, reverse=True)
+    latest_100 = set(sorted_deal[:100])
+    pushed_deal.intersection_update(latest_100)
+
     try:
         while True:
             print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")

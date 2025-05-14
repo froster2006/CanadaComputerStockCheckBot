@@ -1,7 +1,7 @@
 version: '3'
 services:
   rfdchecker:
-    image: froster2006/rfdcheckder:v01.03
+    image: froster2006/rfdcheckder:v01.05
     container_name: rfd_checker
     restart: unless-stopped
     pull_policy: always
