@@ -32,3 +32,4 @@ venv/
 # Misc
 .DS_Store
 *.log
+conf/config.json
