@@ -21,7 +21,6 @@ pipeline {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
                         dockerImage.push()
-                        dockerImage.push("latest") // optional
                     }
                 }
             }
