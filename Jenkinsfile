@@ -7,11 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'git@github.com:froster2006/CanadaComputerStockCheckBot.git']])
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
