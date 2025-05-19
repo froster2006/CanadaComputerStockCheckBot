@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/froster2006/CanadaComputerStockCheckBot.git'
+                git 'https://github.com/froster2006/CanadaComputerStockCheckBot'
             }
         }
 
