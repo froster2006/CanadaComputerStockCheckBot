@@ -48,7 +48,7 @@ def fetch_url(url):
 
 def send_discord_notification_rfd(dealList):
     messages = list()
-    message = f"🚨 **RFD alart** 🚨\n"
+    message = f"🚨 **RFD alart_new** 🚨\n"
     for deal in dealList:
         deal_str = '[' + deal['deal_source']+ '] '+ deal['deal_title']+'\n' + deal['deal_link']+'\n'
         if len(message) + len(deal_str) < 1980:
@@ -154,17 +154,19 @@ def checkGpuStock(gpuInfo):
 def checkRFD():
     global pushed_deal
     soup = fetch_url(HOT_DEALS_URL) # fetch the url
-    listings_soup = soup.find_all("div", class_ ='thread_info') # find all the listings
+    #listings_soup = soup.find_all("div", class_ ='thread_info') # find all the listings
+    listings_soup = soup.find_all("li", class_ ='topic-card topic') # find all the listings
     dealList = []
     for listing_soup in listings_soup:
         deal = {}
         try:
-            thread_title = listing_soup.find('h3', class_='thread_title')
-            a_tag = thread_title.find('a',class_='thread_title_link')
-            title_str = a_tag.string.strip('\n\r')
-            inner_header = listing_soup.find('div', class_='thread_inner_header')
-            thread_dealer = inner_header.find('a', class_=['pill','thread_dealer'])
-            source_str=thread_dealer.text.strip('\n\r')
+            link_container = listing_soup.find('a', class_='topic-card-info')
+            relative_url = link_container.get('href')
+            full_url = RFD_DEAL_LINK_PREFIX + relative_url
+            title_element = link_container.find('h3', class_='thread_title')
+            title_str = title_element.get_text(strip=True) if title_element else "Title not found"
+            source_element = link_container.find('div', class_='dealer_name')
+            source_str = source_element.get_text(strip=True) if title_element else "Source not found"
             targetDeal = False
             for s in RFD_Sources:
                 if s in source_str:
@@ -172,18 +174,21 @@ def checkRFD():
                     break
             if targetDeal == True:
                 deal['deal_title'] = title_str
-                deal['deal_link'] = RFD_DEAL_LINK_PREFIX + a_tag['href']
+                deal['deal_link'] = full_url
                 deal['deal_source'] = source_str
                 dealID = get_RFD_DealID(deal['deal_link'])
                 if int(dealID) in pushed_deal:
+                    print('passed:[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' + dealID +'--'+ str(len(pushed_deal)))
                     continue
                 else:
-                    print('[' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID)
                     pushed_deal.add(int(dealID))
                     dealList.append(deal)
-        except Exception:
+                    print('new deal: [' + deal['deal_source'] + ']' + deal['deal_title'] + '--' +dealID +'--'+ str(len(pushed_deal)))
+        except Exception as e:
+            print(e)
             pass
     if len(dealList) > 0:
+        print(dealList)
         send_discord_notification_rfd(dealList)
 
 def save_list_to_file(int_set, filename):
@@ -211,16 +216,13 @@ def main():
     global pushed_deal
     pushed_deal = read_int_set_from_file("conf/pushed_deals.txt")
     sorted_deal = sorted(pushed_deal, reverse=True)
-    latest_100 = set(sorted_deal[:100])
+    latest_100 = set(sorted_deal[:200])
     pushed_deal.intersection_update(latest_100)
 
     try:
         while True:
             print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
-            # for gpu in gpus:
-            #     checkGpuStock(gpu)
             checkRFD()
-            #time.sleep(random.randint(300, 600))
             time.sleep(300)
     except Exception:
         pass
