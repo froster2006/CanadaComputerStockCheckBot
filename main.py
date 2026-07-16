@@ -9,6 +9,52 @@ import re
 import signal
 import sys
 
+from playwright.sync_api import sync_playwright
+
+
+def load_page(url):
+    with sync_playwright() as p:
+
+
+
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox"
+            ]
+        )
+
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/138.0 Safari/537.36"
+            ),
+            viewport={
+                "width": 1280,
+                "height": 900
+            }
+        )
+
+        page = context.new_page()
+
+        page.goto(
+            url,
+            wait_until="domcontentloaded",
+            timeout=120000
+        )
+
+        # wait for javascript rendering
+        page.wait_for_timeout(5000)
+
+        # get final rendered html
+        html = page.content()
+
+        browser.close()
+
+        return html
+
 def handle_sigterm(signum, frame):
     print("Received SIGTERM, cleaning up...")
     global pushed_deal
@@ -153,7 +199,9 @@ def checkGpuStock(gpuInfo):
 
 def checkRFD():
     global pushed_deal
-    soup = fetch_url(HOT_DEALS_URL) # fetch the url
+    html = load_page(HOT_DEALS_URL) # fetch the url
+    soup = BeautifulSoup(html, "html.parser")
+    #soup = fetch_url(HOT_DEALS_URL) # fetch the url
     #listings_soup = soup.find_all("div", class_ ='thread_info') # find all the listings
     listings_soup = soup.find_all("li", class_ ='topic-card topic') # find all the listings
     dealList = []
@@ -224,7 +272,8 @@ def main():
             print(f"\n=== Starting check at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
             checkRFD()
             time.sleep(300)
-    except Exception:
+    except Exception as e:
+        print("Error:", e)
         pass
     finally:
         print(pushed_deal)
