@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-from gpuinfo import gpu_Info
 import time, random
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
@@ -82,15 +81,7 @@ custom_headers = {
         'Connection': 'keep-alive',
  }
 
-def fetch_url(url):
-    try:
-        response = requests.get(url, headers=custom_headers)
-        response.raise_for_status()
-        return BeautifulSoup(response.content, "html.parser")
-    except requests.exceptions.HTTPError as err:
-        print(f"HTTP error occurred: {err}")
-    except Exception as err:
-        print(f"An error occurred: {err}")
+
 
 def send_discord_notification_rfd(dealList):
     messages = list()
@@ -145,7 +136,7 @@ def send_discord_notification(gpu_name, online_status, store_status):
     except requests.exceptions.RequestException as e:
         print(f"Failed to send Discord notification: {e}")
 
-def checkGpuStock(gpuInfo):
+
     url = gpuInfo.url
     name = gpuInfo.name
     custom_headers = {
@@ -236,7 +227,7 @@ def checkRFD():
             print(e)
             pass
     if len(dealList) > 0:
-        print(dealList)
+        #print(dealList)
         send_discord_notification_rfd(dealList)
 
 def save_list_to_file(int_set, filename):
@@ -258,9 +249,7 @@ def read_int_set_from_file(filename):
                     pass
     return int_set
 
-def main():
-    # with open("gpus.json", "r") as file:
-    #     gpus = [gpu_Info.from_dict(gpu_data) for gpu_data in json.load(file)]   
+def main(): 
     global pushed_deal
     pushed_deal = read_int_set_from_file("conf/pushed_deals.txt")
     sorted_deal = sorted(pushed_deal, reverse=True)
