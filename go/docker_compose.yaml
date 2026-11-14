@@ -1,0 +1,10 @@
+services:
+  rfdchecker-go:
+    image: canada-computer-stock-checker-go:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rfd_checker_go
+    restart: unless-stopped
+    volumes:
+      - ../conf:/app/conf

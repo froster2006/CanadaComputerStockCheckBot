@@ -14,3 +14,23 @@ Simple html stock checker using beautifulSoup.
 - run main.py or auto.bat to auto-restart when CC rejects your connection(windows only)
 
 - *CC would ban your IP if you made too many requests so pay attention in interval setting.
+
+## Go version
+
+The Go implementation is in `go/` and uses goquery and Playwright for Go.
+Keep `conf/config.json` and `conf/pushed_deals.txt` in the repository's `conf/`
+directory, as with the Python version.
+
+From the repository root, run:
+
+```powershell
+cd go
+go mod download
+go run github.com/mxschmitt/playwright-go/cmd/playwright@v0.6401.0 install chromium
+go run .
+```
+
+Run the browser-install command once for each machine before starting the
+checker. The checker reads configuration and saves deal IDs relative to the
+repository, so start it from the `go` directory.
+
